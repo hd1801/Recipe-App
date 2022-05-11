@@ -23,12 +23,22 @@ export class Recipe extends Model {
 }
 @Table({ underscored: true })
 export class Instruction extends Model {
-  @Column({ type: DataType.INTEGER, primaryKey: true })
+  @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true })
   id: number;
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.TEXT })
   displayText: string;
   @Column({ type: DataType.INTEGER })
   position: number;
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  @ForeignKey(() => Recipe)
+  recipeId: number;
+  @BelongsTo(() => Recipe)
+  recipe: Recipe;
+}
+@Table({ underscored: true })
+export class SavedRecipe extends Model {
+  @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true })
+  id: number;
   @ForeignKey(() => Recipe)
   recipeId: number;
   @BelongsTo(() => Recipe)

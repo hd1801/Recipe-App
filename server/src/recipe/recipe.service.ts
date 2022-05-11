@@ -5,16 +5,34 @@ import { InjectModel } from '@nestjs/sequelize';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { InstructionDto, RecipeDto } from './recipe.dto';
-import { Instruction, Recipe } from './recipe.model';
+import { Instruction, Recipe, SavedRecipe } from './recipe.model';
 
 @Injectable()
 export class RecipeService {
   constructor(
     @InjectModel(Recipe) private recipeModel: typeof Recipe,
     @InjectModel(Instruction) private instructionModel: typeof Instruction,
+    @InjectModel(SavedRecipe) private savedRecipe: typeof SavedRecipe,
     private httpService: HttpService,
     private configService: ConfigService,
   ) {}
+
+  async getSavedRecipes() {
+    return await this.savedRecipe.findAll({
+      include: {
+        model: Recipe,
+        include: [Instruction],
+      },
+    });
+  }
+
+  async getRecipeById(recipeId: number) {
+    return await this.savedRecipe.findOne({ where: { recipeId } });
+  }
+
+  async saveRecipe(recipeId: number) {
+    return await this.savedRecipe.create({ recipeId });
+  }
 
   async seedRecipes(): Promise<any> {
     const options = this.configService.get('options');
@@ -41,12 +59,14 @@ export class RecipeService {
   }
 
   private toInstruction(instructions: any, recipeId: number) {
-    for (const instruction of instructions)
+    for (const instruction of instructions) {
+      console.log(instruction);
       this.addInstruction({
         recipeId,
         position: instruction.position,
         displayText: instruction.display_text,
       });
+    }
   }
   async insertRecipe(recipe: RecipeDto) {
     return await this.recipeModel.create({ ...recipe });
