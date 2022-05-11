@@ -27,7 +27,7 @@ export class RecipeService {
   }
 
   async getRecipeById(recipeId: number) {
-    return await this.savedRecipe.findOne({ where: { recipeId } });
+    return await this.recipeModel.findOne({ where: { recipeId } });
   }
 
   async saveRecipe(recipeId: number) {
